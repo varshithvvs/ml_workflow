@@ -12,7 +12,7 @@ with open('LICENSE') as f:
     license = f.read()
 
 setup(
-    name='ma_workflow',
+    name='ml_workflow',
     version='0.-.1',
     description='A Data Science project for office hackathon',
     long_description=readme,
