@@ -23,10 +23,10 @@ train_x = pd.DataFrame(train_x.to_numpy())
 # Create and Train Models
 if train_x.all().isna().sum() == 0:
     print("No Null Values in model feed")
-    x_train, x_test, y_train, y_test = train_test_split(train_x, train_y, test_size=0.25)
+    x_train, x_test, y_train, y_test = train_test_split(train_x.values, train_y.values, test_size=0.25)
     tpot = TPOTClassifier(n_jobs=-1, verbosity=2, use_dask=True)
-    features = x_train
-    target = y_train
+    features = x_train.astype(float)
+    target = y_train.astype(float).ravel()
     #tpot.fit(features, target)
     # tpot.score(x_test, y_test)
     # tpot.export(output_file_name='pipeline.py')
