@@ -13,7 +13,7 @@ with open('LICENSE') as f:
 
 setup(
     name='ml_workflow',
-    version='0.-.1',
+    version='0.0.1',
     description='A Data Science project for office hackathon',
     long_description=readme,
     author='Sai Varshith VV',
