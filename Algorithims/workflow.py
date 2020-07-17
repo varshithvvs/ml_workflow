@@ -26,7 +26,7 @@ if train_x.all().isna().sum() == 0:
     print("No Null Values in model input")
     print("-----------------------------\n\n")
     x_train, x_test, y_train, y_test = train_test_split(train_x, train_y, test_size=0.25)
-    tpot = TPOTClassifier(generations=2, n_jobs=-1, verbosity=3, use_dask=True)
+    tpot = TPOTClassifier(generations=20, n_jobs=-1, verbosity=2)
     features = x_train.astype(float)
     target = pd.Series(y_train['Survived'], index=y_train.index).astype(float)
     tpot.fit(features, target)
