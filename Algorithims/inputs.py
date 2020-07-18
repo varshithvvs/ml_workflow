@@ -11,8 +11,6 @@ Loads required inputs and data files for the model.
 
 
 # Import required libraries
-import warnings
-warnings.filterwarnings("ignore")
 
 import dask.dataframe as dd
 from functions.drop_missing import drop_missing
@@ -26,7 +24,8 @@ from mlbox.preprocessing.reader import Reader
 from mlbox.preprocessing.drift_thresholder import Drift_thresholder
 from sklearn.preprocessing import StandardScaler
 from datetime import datetime
-
+from dask.distributed import LocalCluster
+from dask.distributed import Client
 from etl_inputs import etl_inputs
 
 
@@ -51,18 +50,19 @@ y_train : TYPE
 
 """
 start = datetime.now()
-train, test = etl_inputs()
-output_variable = 'sales'
+
 # Load input files
-train_data = train
-test_data = test
+train_data, test_data = etl_inputs()
+output_variable = 'sales'
+
 
 # EDA for Raw Data
-#EDA_Raw = 
-EDA_Raw = swz.compare([train_data.compute(), "Train"], [test_data.compute(), "Test"], output_variable)
+featureupdates = swz.FeatureConfig(force_num=["var_4", "var_7"], force_cat=["product", "product_category", "product_subcategory"])
+EDA_Raw = swz.analyze(train_data.compute(), target_feat=output_variable, feat_cfg=featureupdates)
+# EDA_Raw = swz.compare([train_data.compute(), "Train"], [test_data.compute(), "Test"], output_variable)
+EDA_Raw.show_html(".\Data Files\Raw_Processed EDA.html")
 elapsed = datetime.now() - start
-print("Total runtime" + elapsed)
-# EDA_Raw.show_html(".\Data Files\Raw EDA.html")
+
 '''
 # Create train and test features
 y_train = pd.DataFrame(train_data[output_variable].compute(), columns=output_variable.split())

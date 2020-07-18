@@ -51,9 +51,21 @@ def etl_inputs():
     train = sales.merge(footfall, how='left', left_on=['date', 'city'], right_on=['date', 'city'])
     train = train.merge(discount, how='left', left_on=['date', 'city', 'product'], right_on=['date', 'city', 'product'])
     train = train.merge(product, how='left', left_on=['product'], right_on=['product'])
+    train = train[train['discount_flag'].isnull()]
+    train['day'] = dd.to_datetime(train['date']).dt.day
+    train['month'] = dd.to_datetime(train['date']).dt.month
+    train['year'] = dd.to_datetime(train['date']).dt.year
+    train['week_day'] = dd.to_datetime(train['date']).dt.weekday
+    train = train.drop(['date'], axis=1)
 
     test = test_data.merge(discount_test, how='left', left_on=['date', 'city', 'product'], right_on=['date', 'city', 'product'])
     test = test.merge(product, how='left', left_on=['product'], right_on=['product'])
+    test['day'] = dd.to_datetime(test_data['date']).dt.day
+    test['month'] = dd.to_datetime(test_data['date']).dt.month
+    test['year'] = dd.to_datetime(test_data['date']).dt.year
+    test['week_day'] = dd.to_datetime(test_data['date']).dt.weekday
+    test.drop(['date'], axis=1)
+
 
     elapsed = datetime.now() - start
 
