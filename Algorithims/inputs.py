@@ -54,7 +54,7 @@ output_variable = 'sales'
 
 
 # EDA for Raw Data
-featureupdates = swz.FeatureConfig(force_num=["day", "month", "year", "week_day"], force_cat=["product", "product_category", "product_subcategory"])
+'''featureupdates = swz.FeatureConfig(force_num=["day", "month", "year", "week_day"], force_cat=["product", "product_category", "product_subcategory"])
 EDA_Raw = swz.analyze(train_data.compute(), target_feat=output_variable, feat_cfg=featureupdates)
 # EDA_Raw = swz.compare([train_data.compute(), "Train"], [test_data.compute(), "Test"], output_variable)
 EDA_Raw.show_html(".\Data Files\Raw_Processed EDA.html")
@@ -63,10 +63,10 @@ EDA_test_Raw.show_html(".\Data Files\Test_Raw_Processed EDA.html")
 elapsed = datetime.now() - start
 '''
 # Create train and test features
-y_train[output_variable] = dd.DataFrame(train_data[output_variable])
+y_train = train_data[output_variable]
 train_features = train_data.drop([output_variable], axis=1)
 test_features = test_data
-
+'''
 none_cols = []  # Columns where Nan means none
 zero_cols = []  # Columns where Nan means 0
 merge_key = 'PassengerId'
