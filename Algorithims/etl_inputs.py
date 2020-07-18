@@ -25,6 +25,11 @@ def etl_inputs():
     test_data = dd.read_csv(r"Data Files\test_data.csv")
 
     # ETL the data to create train.csv and test.csv
+    month_list_15_16 = [4, 5, 6, 7, 8, 9]
+    month_list_17 = [4, 5, 6, 7, 8, 9, 11, 12]
+    sales_15 = sales_15[dd.to_datetime(sales_15['date']).dt.month.isin(month_list_15_16)]
+    sales_16 = sales_16[dd.to_datetime(sales_16['date']).dt.month.isin(month_list_15_16)]
+    sales_17 = sales_17[dd.to_datetime(sales_17['date']).dt.month.isin(month_list_17)]
     footfall = footfall.melt(id_vars=['city']).rename(columns={'variable': 'date', 'value': 'footfall'})
     sales = dd.concat([sales_15, sales_16, sales_17, sales_18])
     discount.columns = list(discount.columns.str.lstrip('Discount_'))
@@ -51,21 +56,20 @@ def etl_inputs():
     train = sales.merge(footfall, how='left', left_on=['date', 'city'], right_on=['date', 'city'])
     train = train.merge(discount, how='left', left_on=['date', 'city', 'product'], right_on=['date', 'city', 'product'])
     train = train.merge(product, how='left', left_on=['product'], right_on=['product'])
-    train = train[train['discount_flag'].isnull()]
-    train['day'] = dd.to_datetime(train['date']).dt.day
-    train['month'] = dd.to_datetime(train['date']).dt.month
-    train['year'] = dd.to_datetime(train['date']).dt.year
-    train['week_day'] = dd.to_datetime(train['date']).dt.weekday
+    # train = train[train['discount_flag'].notnull()]
+    train['day'] = dd.to_datetime(train['date']).dt.day.astype(int)
+    train['month'] = dd.to_datetime(train['date']).dt.month.astype(int)
+    train['year'] = dd.to_datetime(train['date']).dt.year.astype(int)
+    train['week_day'] = dd.to_datetime(train['date']).dt.weekday.astype(int)
     train = train.drop(['date'], axis=1)
 
     test = test_data.merge(discount_test, how='left', left_on=['date', 'city', 'product'], right_on=['date', 'city', 'product'])
     test = test.merge(product, how='left', left_on=['product'], right_on=['product'])
-    test['day'] = dd.to_datetime(test_data['date']).dt.day
-    test['month'] = dd.to_datetime(test_data['date']).dt.month
-    test['year'] = dd.to_datetime(test_data['date']).dt.year
-    test['week_day'] = dd.to_datetime(test_data['date']).dt.weekday
-    test.drop(['date'], axis=1)
-
+    test['day'] = dd.to_datetime(test_data['date']).dt.day.astype(int)
+    test['month'] = dd.to_datetime(test_data['date']).dt.month.astype(int)
+    test['year'] = dd.to_datetime(test_data['date']).dt.year.astype(int)
+    test['week_day'] = dd.to_datetime(test_data['date']).dt.weekday.astype(int)
+    test = test.drop(['date'], axis=1)
 
     elapsed = datetime.now() - start
 
