@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-ETL for Raw Data
+ETL for Raw Data.
 
 @author: Varshtih
 """
@@ -8,8 +8,8 @@ ETL for Raw Data
 import dask.dataframe as dd
 from datetime import datetime
 
-start = datetime.now()
-def etl_inputs(train_file, test_file):
+
+def etl_inputs():
     """ETL for Input Files."""
     start = datetime.now()
     # Load Input Files
@@ -23,7 +23,7 @@ def etl_inputs(train_file, test_file):
     city = dd.read_csv(r"Data Files\city_dict.csv")
     discount_test = dd.read_csv(r"Data Files\expected_discount.csv")
     test_data = dd.read_csv(r"Data Files\test_data.csv")
-    
+
     # ETL the data to create train.csv and test.csv
     footfall = footfall.melt(id_vars=['city']).rename(columns={'variable': 'date', 'value': 'footfall'})
     sales = dd.concat([sales_15, sales_16, sales_17, sales_18])
@@ -47,15 +47,14 @@ def etl_inputs(train_file, test_file):
     discount_test = discount_test.drop(['id'], axis=1)
     discount_test['date'] = dd.to_datetime(discount_test['date']).dt.strftime('%m-%d-%y')
     test_data['date'] = dd.to_datetime(test_data['date']).dt.strftime('%m-%d-%y')
-    
+
     train = sales.merge(footfall, how='left', left_on=['date', 'city'], right_on=['date', 'city'])
     train = train.merge(discount, how='left', left_on=['date', 'city', 'product'], right_on=['date', 'city', 'product'])
     train = train.merge(product, how='left', left_on=['product'], right_on=['product'])
-    
+
     test = test_data.merge(discount_test, how='left', left_on=['date', 'city', 'product'], right_on=['date', 'city', 'product'])
     test = test.merge(product, how='left', left_on=['product'], right_on=['product'])
-    
-    sample = train.compute()
+
     elapsed = datetime.now() - start
-    # train.to_csv(train_file, index=False, header=True)
-    # test.to_csv(test_file, index=False, header=True)
+
+    return train, test

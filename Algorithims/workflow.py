@@ -12,15 +12,13 @@ from etl_inputs import etl_inputs
 
 start = datetime.now()
 
-train_file = r"Data Files\train.csv"
-test_file = r"Data Files\test.csv"
-output_variable = 'Survived'
+output_variable = 'sales'
 
 # Create training data
-etl_inputs(train_file,test_file)
-
-train_x, train_y = inputs(train_file, test_file, output_variable)
-train_x = train_x[train_x.columns.drop(list(train_x.filter(regex='feature')))]
+train, test = etl_inputs()
+train_x, train_y = inputs(train, test, output_variable)
+'''
+# train_x = train_x[train_x.columns.drop(list(train_x.filter(regex='feature')))]
 
 # EDA using sweetviz for associations on  features vs target
 # Create and Train Models
@@ -35,7 +33,7 @@ if train_x.all().isna().sum() == 0:
     tpot.fit(features, target)
 elapsed = datetime.now() - start
 
-'''
+
     x_train, x_test, y_train, y_test = train_test_split(train_x, train_y, test_size=0.25)
     classifier = RandomForestClassifier(n_estimators=20, criterion='entropy', n_jobs=-1)
     classifier.fit(x_train, y_train.values.ravel())
