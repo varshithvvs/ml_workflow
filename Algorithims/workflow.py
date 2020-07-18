@@ -8,6 +8,7 @@ from datetime import datetime
 from sklearn.model_selection import train_test_split
 import pandas as pd
 from tpot import TPOTClassifier
+from etl_inputs import etl_inputs
 
 start = datetime.now()
 
@@ -16,6 +17,8 @@ test_file = r"Data Files\test.csv"
 output_variable = 'Survived'
 
 # Create training data
+etl_inputs(train_file,test_file)
+
 train_x, train_y = inputs(train_file, test_file, output_variable)
 train_x = train_x[train_x.columns.drop(list(train_x.filter(regex='feature')))]
 
