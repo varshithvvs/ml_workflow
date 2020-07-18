@@ -1,0 +1,40 @@
+
+*******************************************  Drifts coefficients *******************************************
+
+Embarked = 0.07718707200996722
+Pclass.SUM(train_feature_engineering.Age) = 0.07235439629915241
+Pclass.STD(train_feature_engineering.Fare) = 0.04165038380934716
+Pclass = 0.03941954998803032
+Pclass.SUM(train_feature_engineering.Parch) = 0.039318007638819985
+Age = 0.038295339731722944
+Fare = 0.03750178096890977
+Pclass.MAX(train_feature_engineering.Parch) = 0.036612622446886345
+Pclass.STD(train_feature_engineering.Parch) = 0.03397695721552174
+Pclass.MIN(train_feature_engineering.Age) = 0.030536269929072102
+Pclass.MAX(train_feature_engineering.SibSp) = 0.02953707103359826
+SibSp = 0.0279307636433066
+Pclass.MEAN(train_feature_engineering.Parch) = 0.027887248937626286
+Pclass.COUNT(train_feature_engineering) = 0.027468001021209165
+Pclass.MEAN(train_feature_engineering.SibSp) = 0.026978225530571942
+Pclass.MEAN(train_feature_engineering.Fare) = 0.026437895836160852
+Pclass.STD(train_feature_engineering.Age) = 0.02596568292895185
+Pclass.MAX(train_feature_engineering.Fare) = 0.023144471474723982
+Pclass.SUM(train_feature_engineering.Fare) = 0.022657396065547175
+Pclass.SKEW(train_feature_engineering.Parch) = 0.02231361783673802
+Pclass.MEAN(train_feature_engineering.Age) = 0.021920575175209844
+Pclass.SKEW(train_feature_engineering.Age) = 0.020557769327701703
+Pclass.MAX(train_feature_engineering.Age) = 0.01993966764407995
+Pclass.SKEW(train_feature_engineering.SibSp) = 0.017833254540777554
+Parch = 0.016094510565635822
+Pclass.STD(train_feature_engineering.SibSp) = 0.013924416523245053
+Sex = 0.01122290064447573
+Outliner = 0.010270603610442963
+Pclass.SUM(train_feature_engineering.SibSp) = 0.0066885357193053885
+Pclass.SKEW(train_feature_engineering.Fare) = 0.0064815937616546915
+Pclass.MIN(train_feature_engineering.Fare) = 0.0
+Pclass.MIN(train_feature_engineering.SibSp) = 0.0
+Pclass.MIN(train_feature_engineering.Parch) = 0.0
+Pclass.NUM_UNIQUE(train_feature_engineering.Embarked) = 0.0
+Pclass.NUM_UNIQUE(train_feature_engineering.Sex) = 0.0
+Pclass.MODE(train_feature_engineering.Embarked) = 0.0
+Pclass.MODE(train_feature_engineering.Sex) = 0.0

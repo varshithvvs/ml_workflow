@@ -58,9 +58,10 @@ train_data = train
 test_data = test
 
 # EDA for Raw Data
-EDA_Raw = 
-# EDA_Raw = swz.compare([train_data.compute(), "Train"], [test_data.compute(), "Test"], output_variable)
+#EDA_Raw = 
+EDA_Raw = swz.compare([train_data.compute(), "Train"], [test_data.compute(), "Test"], output_variable)
 elapsed = datetime.now() - start
+print("Total runtime" + elapsed)
 # EDA_Raw.show_html(".\Data Files\Raw EDA.html")
 '''
 # Create train and test features
