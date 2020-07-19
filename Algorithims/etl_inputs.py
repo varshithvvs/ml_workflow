@@ -79,4 +79,4 @@ def etl_inputs():
     test['quarter_end'] = dd.to_datetime(test['date']).dt.is_quarter_end.astype(int)
     test = test.drop(['date'], axis=1)
 
-    return train.head(1000), test.head(1000)
+    return train.head(100), test.head(100)
