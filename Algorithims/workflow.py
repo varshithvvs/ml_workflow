@@ -41,6 +41,11 @@ if __name__ == '__main__':
     cluster = LocalCluster()
     client = Client(cluster)
     
+    future = client.submit(workflow)
+    print(future.result())   
+    
+    
+    
 
 
 '''
