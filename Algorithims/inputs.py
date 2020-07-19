@@ -13,12 +13,9 @@ Loads required inputs and data files for the model.
 # Import required libraries
 
 import dask.array as da
-from dask.array.stats import skew
 import sweetviz as swz
 import numpy as np
-import featuretools as ft
 from dask_ml.preprocessing import StandardScaler
-from datetime import datetime
 from etl_inputs import etl_inputs
 
 
@@ -71,6 +68,19 @@ def inputs(output_variable):
     test_columns = test_features[test_num_cols].replace(np.nan, test_features[test_num_cols].mean())
     test_features[test_columns.columns.tolist()] = test_columns
 
+    # Rescale x_train
+    sc = StandardScaler()
+    x_train = sc.fit_transform(train_features)
+    # test_features = sc.fit_transform(test_features)
+
+    # Check for skewness in y_train and apply log for data modelling
+    y_train = da.log1p(da.log1p(y_train))
+
+    return x_train, y_train, test_features
+
+
+
+
     # Feature Engineering
     '''feature_type = {'city': ft.variable_types.Categorical,
                     'product': ft.variable_types.Categorical,
@@ -109,13 +119,3 @@ def inputs(output_variable):
     corelation = corelation.abs()
     corelation = corelation.sort_values(ascending=False)
     '''
-
-    # Rescale x_train
-    sc = StandardScaler()
-    x_train = sc.fit_transform(train_features)
-    # test_features = sc.fit_transform(test_features)
-
-    # Check for skewness in y_train and apply log for data modelling
-    y_train = da.log1p(da.log1p(y_train))
-
-    return x_train, y_train, test_features

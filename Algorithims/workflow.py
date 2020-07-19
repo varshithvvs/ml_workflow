@@ -7,29 +7,41 @@ from inputs import inputs
 from datetime import datetime
 from dask_ml.model_selection import train_test_split
 from tpot import TPOTRegressor
-from etl_inputs import etl_inputs
+import pandas as pd
+from dask.distributed import Client, LocalCluster
+from joblib import parallel_backend
 
-start = datetime.now()
 
 output_variable = 'sales'
 
-# Create training and testing data
-train, test = etl_inputs()
-train_x, train_y, test_data = inputs(output_variable)
+def workflow():
 
+    start = datetime.now()
+    print(start)
+    # Create training and testing data
+    train_x, train_y, test_data = inputs(output_variable)
 
-# Create and Train Models
-if train_x.all().isna().sum() == 0:
-    print("\n")
-    print("No Null Values in model input")
+    elapsed_init = datetime.now() - start
+    print(elapsed_init)
+    # Create and Train Models
+    # if train_x.isna().any().sum().compute() == 0:
+    print("\nNo Null Values in model input")
     print("-----------------------------\n\n")
-    x_train, x_test, y_train, y_test = train_test_split(train_x, train_y, test_size=0.25)
     tpot = TPOTRegressor(generations=2, n_jobs=-1, verbosity=2,
                          scoring='neg_root_mean_squared_error', use_dask=True)
-    features = x_train
-    target = y_train[output_variable]
+
+    x_train, x_test, y_train, y_test = train_test_split(train_x, train_y, test_size=0.25)
+    features = x_train.compute(scheduler='processes')
+    target = pd.Series(y_train[output_variable].compute(scheduler='processes'), index=y_train.index).astype(float)
     tpot.fit(features, target)
-elapsed = datetime.now() - start
+
+    elapsed = datetime.now() - start
+
+if __name__ == '__main__':
+    cluster = LocalCluster()
+    client = Client(cluster)
+    
+
 
 '''
     x_train, x_test, y_train, y_test = train_test_split(train_x, train_y, test_size=0.25)
@@ -53,8 +65,8 @@ elapsed = datetime.now() - start
     y_pred = pd.read_csv(r'save\Survived_predictions.csv')
     y_pred = y_pred['Survived_predicted'].round(0)
     cm = confusion_matrix(y_test, y_pred)
-    
-    
+
+
     x_train, x_test, y_train, y_test = train_test_split(train_x, train_y, test_size=0.25)
     tpot = TPOTRegressor(generations=20, n_jobs=-1, verbosity=2, use_dask=True)
     features = x_train.astype(float)
