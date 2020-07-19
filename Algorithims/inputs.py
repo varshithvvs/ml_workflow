@@ -63,27 +63,24 @@ test_features = test_data
 
 none_cols = ['discount_flag']
 num_cols = ['footfall']
-test_cols = ['product_category', 'product_subcategory', 'var_1', 'var_2',
-             'var_3', 'var_4', 'var_5', 'var_6', 'var_7', 'var_8', 'var_9',
-             'var_10']
+test_cat_cols = ['product_category', 'product_subcategory']
+test_num_cols = ['var_1', 'var_2', 'var_3', 'var_4', 'var_5', 'var_6', 'var_7', 'var_8', 'var_9', 'var_10']
 
 # Drop and Impute missing data (Tune the split and threshold for more control on numerical and text features)
 train_columns = train_features[num_cols].replace(np.nan, train_features[num_cols].mean())
 train_features[train_columns.columns.tolist()] = train_columns
-test_columns = test_features[test_cols].replace(np.nan, test_features[test_cols].mean())
+test_columns = test_features[test_cat_cols].replace(np.nan, test_features[test_cat_cols].mode())
 test_features[test_columns.columns.tolist()] = test_columns
-
-# Append train and test data for Analysis
-features = dd.concat([train_features, test_features])
-features[none_cols] = features[none_cols].replace(np.nan, 'None')
+test_columns = test_features[test_num_cols].replace(np.nan, test_features[test_num_cols].mean())
+test_features[test_columns.columns.tolist()] = test_columns
 
 # Feature Engineering
 feature_type = {'city': ft.variable_types.Text,
                 'product': ft.variable_types.Text,
                 'footfall': ft.variable_types.Numeric,
-                'discount_flag': ft.variable_types.Numeric,
-                'product_category': ft.variable_types.Numeric,
-                'product_subcategory': ft.variable_types.Numeric,
+                'discount_flag': ft.variable_types.Categorical,
+                'product_category': ft.variable_types.Categorical,
+                'product_subcategory': ft.variable_types.Categorical,
                 'var_1': ft.variable_types.Numeric,
                 'var_2': ft.variable_types.Numeric,
                 'var_3': ft.variable_types.Numeric,
@@ -97,12 +94,11 @@ feature_type = {'city': ft.variable_types.Text,
                 'day': ft.variable_types.Datetime,
                 'month': ft.variable_types.Datetime,
                 'year': ft.variable_types.Datetime,
-                'week_day': ft.variable_types.Datetime,
-                'id': ft.variable_types.Numeric}
+                'week_day': ft.variable_types.Datetime}
 ignore = {'train_feature_engineering': ['id']}
 es = ft.EntitySet(id='train_feature_engineering')
 es = es.entity_from_dataframe(entity_id='train_feature_engineering',
-                              dataframe=features, make_index=True, index='index',
+                              dataframe=train_features, make_index=True, index='index',
                               variable_types=feature_type)
 # es = es.normalize_entity(base_entity_id='train_feature_engineering', new_entity_id='Pclass', index='Pclass')
 features, feature_names = ft.dfs(entityset=es, target_entity='train_feature_engineering', ignore_variables=ignore)
@@ -148,5 +144,5 @@ x_train = pd.DataFrame(x_train, columns=x_train_col)
 # Check for skewness in y_train and alter accordingly
 
 
-# return x_train, y_train
+# return x_train, y_train, test_features
 '''
