@@ -12,12 +12,12 @@ Loads required inputs and data files for the model.
 
 # Import required libraries
 
-import dask.dataframe as dd
-from functions.detect_outliner import detect_outliner
+import dask.array as da
+from dask.array.stats import skew
 import sweetviz as swz
 import numpy as np
 import featuretools as ft
-from sklearn.preprocessing import StandardScaler
+from dask_ml.preprocessing import StandardScaler
 from datetime import datetime
 from etl_inputs import etl_inputs
 
@@ -69,14 +69,14 @@ test_num_cols = ['var_1', 'var_2', 'var_3', 'var_4', 'var_5', 'var_6', 'var_7', 
 # Drop and Impute missing data (Tune the split and threshold for more control on numerical and text features)
 train_columns = train_features[num_cols].replace(np.nan, train_features[num_cols].mean())
 train_features[train_columns.columns.tolist()] = train_columns
-test_columns = test_features[test_cat_cols].replace(np.nan, test_features[test_cat_cols].mode())
+test_columns = test_features[test_cat_cols].replace(np.nan, test_features[test_cat_cols].mean().round(0))
 test_features[test_columns.columns.tolist()] = test_columns
 test_columns = test_features[test_num_cols].replace(np.nan, test_features[test_num_cols].mean())
 test_features[test_columns.columns.tolist()] = test_columns
 
 # Feature Engineering
-feature_type = {'city': ft.variable_types.Text,
-                'product': ft.variable_types.Text,
+'''feature_type = {'city': ft.variable_types.Categorical,
+                'product': ft.variable_types.Categorical,
                 'footfall': ft.variable_types.Numeric,
                 'discount_flag': ft.variable_types.Categorical,
                 'product_category': ft.variable_types.Categorical,
@@ -95,54 +95,34 @@ feature_type = {'city': ft.variable_types.Text,
                 'month': ft.variable_types.Datetime,
                 'year': ft.variable_types.Datetime,
                 'week_day': ft.variable_types.Datetime}
-ignore = {'train_feature_engineering': ['id']}
+ignore = {'train_feature_engineering': ['city', 'day', 'month', 'year', 'week_day']}
 es = ft.EntitySet(id='train_feature_engineering')
 es = es.entity_from_dataframe(entity_id='train_feature_engineering',
                               dataframe=train_features, make_index=True, index='index',
                               variable_types=feature_type)
-# es = es.normalize_entity(base_entity_id='train_feature_engineering', new_entity_id='Pclass', index='Pclass')
-features, feature_names = ft.dfs(entityset=es, target_entity='train_feature_engineering', ignore_variables=ignore)
-# features = dd.from_pandas(features_pd, npartitions=1)
-
-elapsed = datetime.now() - start
+# es = es.normalize_entity(base_entity_id='train_feature_engineering', new_entity_id='sample', index='city')
+features, feature_names = ft.dfs(entityset=es, target_entity='train_feature_engineering', ignore_variables=ignore, max_depth=3)
+print(feature_names)
 '''
-# Identify Outliners
-# features = dd.from_pandas(detect_outliner(features.compute()), npartitions=1)
-outliner_count = np.count_nonzero(features['Outliner'] == 1)
 
 # Drop null Columns
-for col in features.columns:
-    if features[col].compute().isnull().sum() > 0:
-        features.drop(col, axis=1, inplace=True)
+col = list(train_features.columns[train_features.isna().any()])
+x_train = train_features.drop(col, axis=1)
 
-# Handle Outliner (log transofrm, drop, binning based on the output)
-y_train = pd.concat([y_train,features['Outliner']], axis=1)
-features = features[features['Outliner']==0]
-y_train = y_train[y_train['Outliner']==0]
-features = features.reset_index(drop=True)
-y_train = y_train.reset_index(drop=True)
-
-# Drop Corelated Data
-features = features.drop(columns='Outliner')
-y_train = y_train.drop(columns='Outliner')
-features_corelation_matrix = features.corr().abs()
-upper_matrix = features_corelation_matrix.where(np.triu(np.ones(features_corelation_matrix.shape), k=1).astype(np.bool))
-collinear_features = [column for column in upper_matrix.columns if any(upper_matrix[column] > 0.7)]
-x_train = features.drop(columns=collinear_features)
-
-processed_data = pd.concat([x_train, y_train], axis=1)
-corelation = processed_data.corrwith(processed_data[output_variable])
+'''
+corelation = x_train.compute().corrwith(y_train.compute())
 corelation = corelation.abs()
 corelation = corelation.sort_values(ascending=False)
-
-# Rescale your x_train if necessary
+'''
+elapsed = datetime.now() - start
+# Rescale x_train
 sc = StandardScaler()
 x_train_col = x_train.columns
 x_train = sc.fit_transform(x_train)
-x_train = pd.DataFrame(x_train, columns=x_train_col)
 
-# Check for skewness in y_train and alter accordingly
+# Check for skewness in y_train and apply log for data modelling
+y_train = da.log1p(y_train)
+y_skew = skew(y_train)
 
-
+elapsed_final = datetime.now() - start
 # return x_train, y_train, test_features
-'''
