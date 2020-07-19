@@ -6,7 +6,6 @@ ETL for Raw Data.
 """
 
 import dask.dataframe as dd
-from datetime import datetime
 
 
 def etl_inputs():
