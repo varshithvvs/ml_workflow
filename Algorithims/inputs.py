@@ -22,15 +22,11 @@ from datetime import datetime
 from etl_inputs import etl_inputs
 
 
-def inputs(train, test, output_variable):
+def inputs(output_variable):
     """Input Processing function uses EDA,Feature Engieering to feed data into the model.
 
     Parameters
     ----------
-    train_file : TYPE
-        DESCRIPTION.
-    test_file : TYPE
-        DESCRIPTION.
     output_variable : TYPE
         DESCRIPTION.
 
@@ -40,12 +36,12 @@ def inputs(train, test, output_variable):
         DESCRIPTION.
     y_train : TYPE
         DESCRIPTION.
+    test_features : TYPE
+        DESCRIPTION.
 
     """
-
     # Load input files
     train_data, test_data = etl_inputs()
-    output_variable = 'sales'
 
     # EDA for Raw Data
     '''featureupdates = swz.FeatureConfig(force_num=["day", "month", "year", "week_day"], force_cat=["product", "product_category", "product_subcategory"])
@@ -117,9 +113,9 @@ def inputs(train, test, output_variable):
     # Rescale x_train
     sc = StandardScaler()
     x_train = sc.fit_transform(train_features)
+    # test_features = sc.fit_transform(test_features)
 
     # Check for skewness in y_train and apply log for data modelling
-    y_train = da.log1p(y_train)
-    y_skew = skew(y_train)
+    y_train = da.log1p(da.log1p(y_train))
 
     return x_train, y_train, test_features
