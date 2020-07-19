@@ -11,7 +11,6 @@ from datetime import datetime
 
 def etl_inputs():
     """ETL for Input Files."""
-    start = datetime.now()
     # Load Input Files
     sales_15 = dd.read_csv(r"Data Files\2015_sales_data.csv")
     sales_16 = dd.read_csv(r"Data Files\2016_sales_data.csv")
@@ -52,6 +51,7 @@ def etl_inputs():
     discount_test = discount_test.drop(['id'], axis=1)
     discount_test['date'] = dd.to_datetime(discount_test['date']).dt.strftime('%m-%d-%y')
     test_data['date'] = dd.to_datetime(test_data['date']).dt.strftime('%m-%d-%y')
+    product = product.drop(['var_4', 'var_7'], axis=1)
 
     train = sales.merge(footfall, how='left', left_on=['date', 'city'], right_on=['date', 'city'])
     train = train.merge(discount, how='left', left_on=['date', 'city', 'product'], right_on=['date', 'city', 'product'])
@@ -61,6 +61,10 @@ def etl_inputs():
     train['month'] = dd.to_datetime(train['date']).dt.month.astype(int)
     train['year'] = dd.to_datetime(train['date']).dt.year.astype(int)
     train['week_day'] = dd.to_datetime(train['date']).dt.weekday.astype(int)
+    train['month_start'] = dd.to_datetime(train['date']).dt.is_month_start.astype(int)
+    train['month_end'] = dd.to_datetime(train['date']).dt.is_month_end.astype(int)
+    train['quarter_start'] = dd.to_datetime(train['date']).dt.is_quarter_start.astype(int)
+    train['quarter_end'] = dd.to_datetime(train['date']).dt.is_quarter_end.astype(int)
     train = train.drop(['date'], axis=1)
 
     test = test_data.merge(discount_test, how='left', left_on=['date', 'city', 'product'], right_on=['date', 'city', 'product'])
@@ -69,8 +73,10 @@ def etl_inputs():
     test['month'] = dd.to_datetime(test_data['date']).dt.month.astype(int)
     test['year'] = dd.to_datetime(test_data['date']).dt.year.astype(int)
     test['week_day'] = dd.to_datetime(test_data['date']).dt.weekday.astype(int)
+    test['month_start'] = dd.to_datetime(test['date']).dt.is_month_start.astype(int)
+    test['month_end'] = dd.to_datetime(test['date']).dt.is_month_end.astype(int)
+    test['quarter_start'] = dd.to_datetime(test['date']).dt.is_quarter_start.astype(int)
+    test['quarter_end'] = dd.to_datetime(test['date']).dt.is_quarter_end.astype(int)
     test = test.drop(['date'], axis=1)
-
-    elapsed = datetime.now() - start
 
     return train, test

@@ -64,7 +64,7 @@ test_features = test_data
 none_cols = ['discount_flag']
 num_cols = ['footfall']
 test_cat_cols = ['product_category', 'product_subcategory']
-test_num_cols = ['var_1', 'var_2', 'var_3', 'var_4', 'var_5', 'var_6', 'var_7', 'var_8', 'var_9', 'var_10']
+test_num_cols = ['var_1', 'var_2', 'var_3', 'var_5', 'var_6', 'var_8', 'var_9', 'var_10']
 
 # Drop and Impute missing data (Tune the split and threshold for more control on numerical and text features)
 train_columns = train_features[num_cols].replace(np.nan, train_features[num_cols].mean())
@@ -103,26 +103,23 @@ es = es.entity_from_dataframe(entity_id='train_feature_engineering',
 # es = es.normalize_entity(base_entity_id='train_feature_engineering', new_entity_id='sample', index='city')
 features, feature_names = ft.dfs(entityset=es, target_entity='train_feature_engineering', ignore_variables=ignore, max_depth=3)
 print(feature_names)
-'''
 
 # Drop null Columns
 col = list(train_features.columns[train_features.isna().any()])
 x_train = train_features.drop(col, axis=1)
 
-'''
 corelation = x_train.compute().corrwith(y_train.compute())
 corelation = corelation.abs()
 corelation = corelation.sort_values(ascending=False)
 '''
-elapsed = datetime.now() - start
+
 # Rescale x_train
 sc = StandardScaler()
-x_train_col = x_train.columns
-x_train = sc.fit_transform(x_train)
+x_train = sc.fit_transform(train_features)
 
 # Check for skewness in y_train and apply log for data modelling
 y_train = da.log1p(y_train)
 y_skew = skew(y_train)
 
-elapsed_final = datetime.now() - start
+elapsed = datetime.now() - start
 # return x_train, y_train, test_features
