@@ -28,7 +28,8 @@ def workflow():
     panel_train = panel_train.drop_duplicates().compute().tolist()
     panel_test = test_data['discount_flag'] + test_data['city'] + test_data['product']
     test_data['panel'] = test_data['discount_flag'] + test_data['city'] + test_data['product']
-    panel_test = panel_test.drop_duplicates().compute().tolist()
+    panel_test = panel_test.compute().tolist()
+    panel_test  = list(set(panel_test))
     panel = [x for x in panel_train if x in panel_test]
     train_data = dd.concat([train_x, train_y], axis=1)
     train_data = train_data.drop(['discount_flag', 'city', 'product_category', 'product_subcategory', 'product'], axis=1)
@@ -36,36 +37,38 @@ def workflow():
     train_data = train_data[train_data['panel'].isin(panel)]
     train_data_list = []
     test_data_list = []
-    train_data = train_data.groupby(train_data['panel']).apply(lambda x: train_data_list.append(x))
+    train_data = train_data.groupby(train_data['panel'])
+    # .apply(lambda x: train_data_list.append(x))
     test_data = test_data.groupby(test_data['panel']).apply(lambda x: test_data_list.append(x))
     train_data = train_data_list
     test_data = test_data_list
 
     # Create and Train Models
-    if train_x.isna().any() is False:
-        print("\nNo Null Values in model input")
-        print("-----------------------------\n\n")
-        tpot = TPOTRegressor(generations=10, n_jobs=-1, verbosity=2,
-                             scoring='neg_root_mean_squared_error', use_dask=True)
-        score = None
-        for i in range(panel):
-            train_data[i] = train_data[i].drop(['panel'], axis=1)
-            test_data[i] = test_data[i].drop(['panel'], axis=1)
-            train_y = train_data[i]['sales'].compute()
-            train_x = train_data[i].drop(['sales'], axis=1).compute()
-            x_train, x_test, y_train, y_test = train_test_split(train_x[i], train_y[i], test_size=0.25)
-            tpot[i].fit(x_train, y_train)
-            score[i] = tpot[i].score(x_test, y_test)
-            test_data[i]['sales'] = tpot[i].predict(test_data[i].drop(['id'], axis=1).compute())
-            test_data[i].to_csv(r"Data Files\Submission.csv", mode='a')
-            # .values.reshape(len(y_train.index), 1)
-        test_pred = dd.read_csv(r"Data Files\Submission.csv")
-        test_pred = test_pred.drop_duplicates().compute()
-        test_pred.to_csv(r"Data Files\Submission.csv")
-        return score
-    else:
-        return "Null values present"
+    # if train_x.isna().any() is False:
+    print("\nNo Null Values in model input")
+    print("-----------------------------\n\n")
+    tpot = TPOTRegressor(generations=10, n_jobs=-1, verbosity=2,
+                         scoring='neg_root_mean_squared_error', use_dask=True)
+    score = None
+    for i in range(len(panel)):
+        train_data[i] = train_data[i].drop(['panel'], axis=1)
+        test_data[i] = test_data[i].drop(['panel'], axis=1)
+        train_y = train_data[i]['sales'].compute()
+        train_x = train_data[i].drop(['sales'], axis=1).compute()
+        x_train, x_test, y_train, y_test = train_test_split(train_x[i], train_y[i], test_size=0.25)
+        tpot[i].fit(x_train, y_train)
+        score[i] = tpot[i].score(x_test, y_test)
+        test_data[i]['sales'] = tpot[i].predict(test_data[i].drop(['id'], axis=1).compute())
+        test_data[i].to_csv(r"Data Files\Submission.csv", mode='a')
+    # test_pred = dd.read_csv(r"Data Files\Submission.csv")
+    # test_pred = test_pred.drop_duplicates().compute()
+    # test_pred.to_csv(r"Data Files\Submission.csv")
+    return panel_test
 
+
+'''    else:
+        return train_x.isna().any()
+'''
 if __name__ == '__main__':
     start = datetime.now()
     print(start)
