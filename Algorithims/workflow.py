@@ -33,9 +33,9 @@ def workflow():
     train_data = dd.concat([train_x, train_y], axis=1)
     train_data = train_data.drop(['discount_flag', 'city', 'product_category', 'product_subcategory', 'product'], axis=1)
     test_data = test_data.drop(['discount_flag', 'city', 'product_category', 'product_subcategory', 'product'], axis=1)
-    train_data = train_x['panel'].isin(panel)
-    train_data = train_data.groupby(train_data.panel).tolist()
-    test_data = test_data.groupby(test_data.panel).tolist()
+    train_data = train_data['panel'].isin(panel)
+    train_data = train_data.to_frame().groupby(train_data.panel).tolist()
+    test_data = test_data.to_frame().groupby(test_data.panel).tolist()
 
     # Create and Train Models
     if train_x.isna().any() is False:
