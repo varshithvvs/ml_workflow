@@ -62,8 +62,8 @@ def etl_inputs():
     train['week_day'] = dd.to_datetime(train['date']).dt.weekday.astype(int)
     train['month_start'] = dd.to_datetime(train['date']).dt.is_month_start.astype(int)
     train['month_end'] = dd.to_datetime(train['date']).dt.is_month_end.astype(int)
-    train['quarter_start'] = dd.to_datetime(train['date']).dt.is_quarter_start.astype(int)
-    train['quarter_end'] = dd.to_datetime(train['date']).dt.is_quarter_end.astype(int)
+#    train['quarter_start'] = dd.to_datetime(train['date']).dt.is_quarter_start.astype(int)
+#    train['quarter_end'] = dd.to_datetime(train['date']).dt.is_quarter_end.astype(int)
     train = train.drop(['date'], axis=1)
 
     test = test_data.merge(discount_test, how='left', left_on=['date', 'city', 'product'], right_on=['date', 'city', 'product'])
@@ -74,8 +74,8 @@ def etl_inputs():
     test['week_day'] = dd.to_datetime(test_data['date']).dt.weekday.astype(int)
     test['month_start'] = dd.to_datetime(test['date']).dt.is_month_start.astype(int)
     test['month_end'] = dd.to_datetime(test['date']).dt.is_month_end.astype(int)
-    test['quarter_start'] = dd.to_datetime(test['date']).dt.is_quarter_start.astype(int)
-    test['quarter_end'] = dd.to_datetime(test['date']).dt.is_quarter_end.astype(int)
+#    test['quarter_start'] = dd.to_datetime(test['date']).dt.is_quarter_start.astype(int)
+#    test['quarter_end'] = dd.to_datetime(test['date']).dt.is_quarter_end.astype(int)
     test = test.drop(['date'], axis=1)
 
-    return train.head(100), test.head(100)
+    return train, test

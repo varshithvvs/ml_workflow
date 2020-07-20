@@ -39,6 +39,7 @@ def inputs(output_variable):
     """
     # Load input files
     train_data, test_data = etl_inputs()
+    train_data = train_data.drop_duplicates()
 
     # EDA for Raw Data
     '''featureupdates = swz.FeatureConfig(force_num=["day", "month", "year", "week_day"], force_cat=["product", "product_category", "product_subcategory"])
@@ -77,45 +78,3 @@ def inputs(output_variable):
     y_train = da.log1p(da.log1p(y_train))
 
     return x_train, y_train, test_features
-
-
-
-
-    # Feature Engineering
-    '''feature_type = {'city': ft.variable_types.Categorical,
-                    'product': ft.variable_types.Categorical,
-                    'footfall': ft.variable_types.Numeric,
-                    'discount_flag': ft.variable_types.Categorical,
-                    'product_category': ft.variable_types.Categorical,
-                    'product_subcategory': ft.variable_types.Categorical,
-                    'var_1': ft.variable_types.Numeric,
-                    'var_2': ft.variable_types.Numeric,
-                    'var_3': ft.variable_types.Numeric,
-                    'var_4': ft.variable_types.Numeric,
-                    'var_5': ft.variable_types.Numeric,
-                    'var_6': ft.variable_types.Numeric,
-                    'var_7': ft.variable_types.Numeric,
-                    'var_8': ft.variable_types.Numeric,
-                    'var_9': ft.variable_types.Numeric,
-                    'var_10': ft.variable_types.Numeric,
-                    'day': ft.variable_types.Datetime,
-                    'month': ft.variable_types.Datetime,
-                    'year': ft.variable_types.Datetime,
-                    'week_day': ft.variable_types.Datetime}
-    ignore = {'train_feature_engineering': ['city', 'day', 'month', 'year', 'week_day']}
-    es = ft.EntitySet(id='train_feature_engineering')
-    es = es.entity_from_dataframe(entity_id='train_feature_engineering',
-                                  dataframe=train_features, make_index=True, index='index',
-                                  variable_types=feature_type)
-    # es = es.normalize_entity(base_entity_id='train_feature_engineering', new_entity_id='sample', index='city')
-    features, feature_names = ft.dfs(entityset=es, target_entity='train_feature_engineering', ignore_variables=ignore, max_depth=3)
-    print(feature_names)
-
-    # Drop null Columns
-    col = list(train_features.columns[train_features.isna().any()])
-    x_train = train_features.drop(col, axis=1)
-
-    corelation = x_train.compute().corrwith(y_train.compute())
-    corelation = corelation.abs()
-    corelation = corelation.sort_values(ascending=False)
-    '''
