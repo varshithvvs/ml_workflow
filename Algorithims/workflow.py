@@ -33,9 +33,13 @@ def workflow():
     train_data = dd.concat([train_x, train_y], axis=1)
     train_data = train_data.drop(['discount_flag', 'city', 'product_category', 'product_subcategory', 'product'], axis=1)
     test_data = test_data.drop(['discount_flag', 'city', 'product_category', 'product_subcategory', 'product'], axis=1)
-    train_data = train_data['panel'].isin(panel)
-    train_data = train_data.to_frame().groupby(train_data.panel).tolist()
-    test_data = test_data.to_frame().groupby(test_data.panel).tolist()
+    train_data = train_data[train_data['panel'].isin(panel)]
+    train_data_list = []
+    test_data_list = []
+    train_data = train_data.groupby(train_data['panel']).apply(lambda x: train_data_list.append(x))
+    test_data = test_data.groupby(test_data['panel']).apply(lambda x: test_data_list.append(x))
+    train_data = train_data_list
+    test_data = test_data_list
 
     # Create and Train Models
     if train_x.isna().any() is False:
@@ -62,11 +66,10 @@ def workflow():
     else:
         return "Null values present"
 
-
 if __name__ == '__main__':
     start = datetime.now()
     print(start)
-    cluster = LocalCluster()
+    cluster = LocalCluster(n_workers=4)
     client = Client(cluster)
 
     future = client.submit(workflow)
