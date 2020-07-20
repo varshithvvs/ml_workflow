@@ -23,11 +23,11 @@ def workflow():
     """
     # Create training and testing data
     train_x, train_y, test_data = inputs(output_variable)
-    panel_train = train_x['discount_flag'] + train_x['city'] + train_x['product_category'] + train_x['product_subcategory']
-    train_x['panel'] = train_x['discount_flag'] + train_x['city'] + train_x['product_category'] + train_x['product_subcategory']
+    panel_train = train_x['discount_flag'] + train_x['city'] + train_x['product']
+    train_x['panel'] = train_x['discount_flag'] + train_x['city'] + train_x['product']
     panel_train = panel_train.drop_duplicates().compute().tolist()
-    panel_test = test_data['discount_flag'] + test_data['city'] + test_data['product_category'] + test_data['product_subcategory']
-    test_data['panel'] = test_data['discount_flag'] + test_data['city'] + test_data['product_category'] + test_data['product_subcategory']
+    panel_test = test_data['discount_flag'] + test_data['city'] + test_data['product']
+    test_data['panel'] = test_data['discount_flag'] + test_data['city'] + test_data['product']
     panel_test = panel_test.drop_duplicates().compute().tolist()
     panel = [x for x in panel_train if x in panel_test]
     train_data = dd.concat([train_x, train_y], axis=1)
@@ -41,7 +41,7 @@ def workflow():
     if train_x.isna().any() is False:
         print("\nNo Null Values in model input")
         print("-----------------------------\n\n")
-        tpot = TPOTRegressor(generations=5, n_jobs=-1, verbosity=2,
+        tpot = TPOTRegressor(generations=10, n_jobs=-1, verbosity=2,
                              scoring='neg_root_mean_squared_error', use_dask=True)
         score = None
         for i in range(panel):
